@@ -145,21 +145,23 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
                   height: 12,
                 ),
                 StoreConnector<AppState, dynamic Function(Subject)>(
-                    builder: (cont, callback) {
-                  return FilledButton(
-                    onPressed: createSubject(callback),
-                    child: const Padding(
-                      padding: EdgeInsets.only(
-                        top: 8,
-                        bottom: 8,
+                  builder: (cont, callback) {
+                    return FilledButton(
+                      onPressed: createSubject(callback),
+                      child: const Padding(
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          bottom: 8,
+                        ),
+                        child: Text("Save"),
                       ),
-                      child: Text("Save"),
-                    ),
-                  );
-                }, converter: (store) {
-                  return (Subject subject) =>
+                    );
+                  }, 
+                  converter: (store) {
+                    return (Subject subject) =>
                       store.dispatch(AddSubjectAction(subject));
-                })
+                  }
+                )
               ],
             )));
   }

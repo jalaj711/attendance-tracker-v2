@@ -10,3 +10,14 @@ class AddSubjectAction {
     return 'AddSubjectAction{subject: $subject}';
   }
 }
+
+class EditSubjectAction {
+  final Subject subject;
+
+  EditSubjectAction(this.subject);
+
+  @override
+  String toString() {
+    return 'EditSubjectAction{subject: $subject}';
+  }
+}
