@@ -1,6 +1,9 @@
+import 'package:attendance_tracker/actions/subject_actions.dart';
 import 'package:attendance_tracker/components/edit_sheet.dart';
+import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class SubjectCard extends StatefulWidget {
   const SubjectCard({super.key, required this.subject});
@@ -111,6 +114,9 @@ class _SubjectCardState extends State<SubjectCard> {
                                           widget.subject.target) {
                                         text = "WARNING";
                                         color = const Color(0xaaffff66);
+                                      } else {
+                                        text +=
+                                            " [NEED: ${((widget.subject.total_classes * widget.subject.target - 100 * widget.subject.attended) / (100 - widget.subject.target)).round()}]";
                                       }
 
                                       return Text(
@@ -166,12 +172,20 @@ class _SubjectCardState extends State<SubjectCard> {
                             SizedBox(
                               height: 30,
                               width: 30,
-                              child: IconButton.filledTonal(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.remove,
-                                    size: 14,
-                                  )),
+                              child:
+                                  StoreConnector<AppState, Function(Subject)>(
+                                      builder: (context, markAttendance) {
+                                        return IconButton.filledTonal(
+                                            onPressed: () =>
+                                                markAttendance(widget.subject),
+                                            icon: const Icon(
+                                              Icons.remove,
+                                              size: 14,
+                                            ));
+                                      },
+                                      converter: (store) => (Subject subject) =>
+                                          store.dispatch(MarkAttendanceAction(
+                                              subject, false))),
                             ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -199,12 +213,20 @@ class _SubjectCardState extends State<SubjectCard> {
                             SizedBox(
                               height: 30,
                               width: 30,
-                              child: IconButton.filled(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.add,
-                                    size: 14,
-                                  )),
+                              child: StoreConnector<AppState,
+                                      Function(Subject)>(
+                                  builder: (context, markAttendance) {
+                                    return IconButton.filled(
+                                        onPressed: () =>
+                                            markAttendance(widget.subject),
+                                        icon: const Icon(
+                                          Icons.add,
+                                          size: 14,
+                                        ));
+                                  },
+                                  converter: (store) => (Subject subject) =>
+                                      store.dispatch(
+                                          MarkAttendanceAction(subject, true))),
                             )
                           ],
                         ),

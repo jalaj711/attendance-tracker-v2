@@ -21,3 +21,15 @@ class EditSubjectAction {
     return 'EditSubjectAction{subject: $subject}';
   }
 }
+
+class MarkAttendanceAction {
+  final Subject subject;
+  final bool present;
+
+  MarkAttendanceAction(this.subject, this.present);
+
+  @override
+  String toString() {
+    return 'MarkAttendanceAction{subject: $subject, present: $present}';
+  }
+}
