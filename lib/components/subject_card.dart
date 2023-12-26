@@ -110,9 +110,8 @@ class _SubjectCardState extends State<SubjectCard> {
                                             .textTheme
                                             .bodySmall
                                             ?.merge(TextStyle(
-                                              color: color,
-                                              fontWeight: FontWeight.w600
-                                            )),
+                                                color: color,
+                                                fontWeight: FontWeight.w600)),
                                       );
                                     }()),
                                   ],
@@ -128,7 +127,8 @@ class _SubjectCardState extends State<SubjectCard> {
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 8),
                                     child: LinearProgressIndicator(
-                                      value: widget.subject.attended/widget.subject.total_classes,
+                                      value: widget.subject.attended /
+                                          widget.subject.total_classes,
                                     )),
                                 Text(
                                   "${widget.subject.attended}",
@@ -191,7 +191,8 @@ class _SubjectCardState extends State<SubjectCard> {
                               height: 30,
                               width: 30,
                               child: IconButton.filled(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                  },
                                   icon: const Icon(
                                     Icons.add,
                                     size: 14,

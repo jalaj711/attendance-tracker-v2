@@ -1,4 +1,5 @@
-import 'package:attendance_tracker/components/subject-card.dart';
+import 'package:attendance_tracker/components/add_sheet.dart';
+import 'package:attendance_tracker/components/subject_card.dart';
 import 'package:attendance_tracker/types/subject_type.dart';
 import 'package:flutter/material.dart';
 
@@ -130,7 +131,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          showModalBottomSheet(context: context, builder: (BuildContext cont) {
+            return const AddSubjectSheet();
+          });
+        },
         tooltip: 'Add New Subject',
         elevation: 0,
         child: const Icon(Icons.add),
