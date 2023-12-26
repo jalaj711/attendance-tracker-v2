@@ -1,3 +1,4 @@
+import 'package:attendance_tracker/components/edit_sheet.dart';
 import 'package:attendance_tracker/types/subject_type.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,15 @@ class _SubjectCardState extends State<SubjectCard> {
                           height: 30,
                           width: 30,
                           child: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext cont) {
+                                      return EditSubjectSheet(
+                                        subject: widget.subject,
+                                      );
+                                    });
+                              },
                               color: Colors.grey,
                               icon: const Icon(
                                 Icons.edit_outlined,
@@ -191,8 +200,7 @@ class _SubjectCardState extends State<SubjectCard> {
                               height: 30,
                               width: 30,
                               child: IconButton.filled(
-                                  onPressed: () {
-                                  },
+                                  onPressed: () {},
                                   icon: const Icon(
                                     Icons.add,
                                     size: 14,
