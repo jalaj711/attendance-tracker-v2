@@ -1,3 +1,5 @@
+import 'package:attendance_tracker/components/subject-card.dart';
+import 'package:attendance_tracker/types/subject_type.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -28,34 +30,71 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 48, 16, 48),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Attendance Tracker',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                Text(
-                  'Easily track your attendance with cloud backup',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
-                )
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 48, 12, 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                'Attendance Tracker',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              Text(
+                'Easily track your attendance with cloud backup',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
+              ),
+              Container(
+                  margin: const EdgeInsets.only(top: 48),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SubjectCard(
+                        subject: Subject(
+                            title: "Subject 1",
+                            target: 75,
+                            id: 1,
+                            attended: 17,
+                            total_classes: 21),
+                      ),
+                      SubjectCard(
+                        subject: Subject(
+                            title: "Subject 2",
+                            target: 75,
+                            id: 2,
+                            attended: 16,
+                            total_classes: 20),
+                      ),
+                      SubjectCard(
+                        subject: Subject(
+                            title: "Subject 3",
+                            target: 75,
+                            id: 3,
+                            attended: 10,
+                            total_classes: 21),
+                      ),
+                      SubjectCard(
+                        subject: Subject(
+                            title: "Subject 4",
+                            target: 75,
+                            id: 4,
+                            attended: 3,
+                            total_classes: 4),
+                      ),
+                    ],
+                  ))
+            ],
           ),
-        ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         color: Theme.of(context).cardColor,
-        elevation: 3.0,
+        elevation: 5,
         child: Row(
           children: <Widget>[
             IconButton(
