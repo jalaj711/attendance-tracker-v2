@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/actions/subject_actions.dart';
+import 'package:attendance_tracker/components/delete_confirm.dart';
 import 'package:attendance_tracker/components/edit_sheet.dart';
 import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
@@ -55,7 +56,16 @@ class _SubjectCardState extends State<SubjectCard> {
                           height: 30,
                           width: 30,
                           child: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        DeleteConfirmDialog(
+                                          message:
+                                              "Are you sure you want to delete the subject ${widget.subject.title}?",
+                                          onDelete: () {},
+                                        ));
+                              },
                               color: Colors.grey,
                               icon: const Icon(
                                 Icons.delete_outline_rounded,
