@@ -1,6 +1,9 @@
+import 'package:attendance_tracker/actions/subject_actions.dart';
+import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class AddSubjectSheet extends StatefulWidget {
   const AddSubjectSheet({super.key});
@@ -25,48 +28,52 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
   @override
   void dispose() {
     _subjectNameController.dispose();
+    _classesAttededController.dispose();
+    _totalClassesController.dispose();
     super.dispose();
   }
 
-  void createSubject() {
-    int attended = 0;
-    int total = 0;
-    if (_classesAttededController.text != "") {
-      attended = int.parse(_classesAttededController.text);
-    }
-    if (_totalClassesController.text != "") {
-      total = int.parse(_totalClassesController.text);
-    }
+  VoidCallback createSubject(Function(Subject) creator) {
+    return () {
+      int attended = 0;
+      int total = 0;
+      if (_classesAttededController.text != "") {
+        attended = int.parse(_classesAttededController.text);
+      }
+      if (_totalClassesController.text != "") {
+        total = int.parse(_totalClassesController.text);
+      }
 
-    String name = _subjectNameController.text;
-    String error = "";
-    if (name == "") error = "Subject name cannot be empty";
+      String name = _subjectNameController.text;
+      String error = "";
+      if (name == "") error = "Subject name cannot be empty";
 
-    if (attended > total) {
-      error = 'Classes Attended cannot be larger than Total Classes';
-    }
+      if (attended > total) {
+        error = 'Classes Attended cannot be larger than Total Classes';
+      }
 
-    if (error != "") {
-      final SnackBar snackBar = SnackBar(
-        content: Text(error),
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'Okay',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return;
-    }
-
-    // invoke some create subject method
-    SubjectAtCreation(
-        title: name,
-        target: targetAttendanceValue.round(),
-        attended: attended,
-        total_classes: total);
+      if (error != "") {
+        final SnackBar snackBar = SnackBar(
+          content: Text(error),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Okay',
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      }
+      Navigator.pop(context);
+      creator(Subject(
+          title: name,
+          target: targetAttendanceValue.round(),
+          attended: attended,
+          total_classes: total,
+          id: 1));
+    };
   }
 
   @override
@@ -137,16 +144,22 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
                 const SizedBox(
                   height: 12,
                 ),
-                FilledButton(
-                  onPressed: createSubject,
-                  child: const Padding(
-                    padding: EdgeInsets.only(
-                      top: 8,
-                      bottom: 8,
+                StoreConnector<AppState, dynamic Function(Subject)>(
+                    builder: (cont, callback) {
+                  return FilledButton(
+                    onPressed: createSubject(callback),
+                    child: const Padding(
+                      padding: EdgeInsets.only(
+                        top: 8,
+                        bottom: 8,
+                      ),
+                      child: Text("Save"),
                     ),
-                    child: Text("Save"),
-                  ),
-                )
+                  );
+                }, converter: (store) {
+                  return (Subject subject) =>
+                      store.dispatch(AddSubjectAction(subject));
+                })
               ],
             )));
   }

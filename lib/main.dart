@@ -1,39 +1,37 @@
+import 'package:attendance_tracker/models/app_state.dart';
+import 'package:attendance_tracker/pages/home/main.dart';
+import 'package:attendance_tracker/reducers/app_state_reducer.dart';
 import 'package:flutter/material.dart';
-import './pages/home/main.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp(
+    store: Store<AppState>(
+      appReducer,
+      initialState: AppState.loading(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.store});
 
-  // This widget is the root of your application.
+  final Store<AppState> store;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Attendance Tracker',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
-        useMaterial3: true,
-        fontFamily: "Montserrat",
-      ),
-      home: const MyHomePage(title: 'Attendance Tracker Home'),
-    );
+    return StoreProvider(
+        store: store,
+        child: MaterialApp(
+          title: 'Attendance Tracker',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple, brightness: Brightness.dark),
+            useMaterial3: true,
+            fontFamily: "Montserrat",
+          ),
+          home: const MyHomePage(title: 'Attendance Tracker Home'),
+        ));
   }
 }
