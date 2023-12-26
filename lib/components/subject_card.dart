@@ -1,5 +1,5 @@
 import 'package:attendance_tracker/components/edit_sheet.dart';
-import 'package:attendance_tracker/types/subject_type.dart';
+import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:flutter/material.dart';
 
 class SubjectCard extends StatefulWidget {
