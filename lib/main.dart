@@ -1,5 +1,6 @@
 import 'package:attendance_tracker/models/app_state.dart';
-import 'package:attendance_tracker/pages/home/main.dart';
+import 'package:attendance_tracker/pages/calendar.dart';
+import 'package:attendance_tracker/pages/home.dart';
 import 'package:attendance_tracker/reducers/app_state_reducer.dart';
 import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
@@ -44,7 +45,10 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             fontFamily: "Montserrat",
           ),
-          home: const MyHomePage(title: 'Attendance Tracker Home'),
+          routes: {
+            MyHomePage.routeName: (context) => const MyHomePage(),
+            SubjectCalendarScreen.routeName: (context) => const SubjectCalendarScreen(),
+          },
         ));
   }
 }
