@@ -33,3 +33,14 @@ class MarkAttendanceAction {
     return 'MarkAttendanceAction{subject: $subject, present: $present}';
   }
 }
+
+class DeleteSubjectAction {
+  final int id;
+
+  DeleteSubjectAction(this.id);
+
+  @override
+  String toString() {
+    return 'DeleteSubjectAction{subject: $id}';
+  }
+}

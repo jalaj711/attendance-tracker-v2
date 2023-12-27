@@ -6,6 +6,7 @@ final subjectsReducer = combineReducers<List<Subject>>([
   TypedReducer<List<Subject>, AddSubjectAction>(_addSubject),
   TypedReducer<List<Subject>, EditSubjectAction>(_editSubject),
   TypedReducer<List<Subject>, MarkAttendanceAction>(_markAtendance),
+  TypedReducer<List<Subject>, DeleteSubjectAction>(_deleteSubject),
 ]);
 
 int i = 0;
@@ -47,5 +48,12 @@ List<Subject> _markAtendance(
         total_classes: initial[index].total_classes + 1,
         id: initial[index].id);
   }
+  return initial;
+}
+
+
+List<Subject> _deleteSubject(List<Subject> subjects, DeleteSubjectAction action) {
+  List<Subject> initial = List.from(subjects);
+  initial.removeWhere((element) => element.id == action.id);
   return initial;
 }

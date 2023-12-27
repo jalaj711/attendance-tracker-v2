@@ -60,11 +60,16 @@ class _SubjectCardState extends State<SubjectCard> {
                                 showDialog<String>(
                                     context: context,
                                     builder: (BuildContext context) =>
-                                        DeleteConfirmDialog(
-                                          message:
-                                              "Are you sure you want to delete the subject ${widget.subject.title}?",
-                                          onDelete: () {},
-                                        ));
+                                        StoreConnector<AppState, VoidCallback>(
+                                            builder: (cont, deleteSubject) =>
+                                                DeleteConfirmDialog(
+                                                  message:
+                                                      "Are you sure you want to delete the subject ${widget.subject.title}?",
+                                                  onDelete: deleteSubject,
+                                                ),
+                                            converter: (store) => () => store
+                                                .dispatch(DeleteSubjectAction(
+                                                    widget.subject.id))));
                               },
                               color: Colors.grey,
                               icon: const Icon(
