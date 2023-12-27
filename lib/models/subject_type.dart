@@ -23,5 +23,20 @@ class Subject extends SubjectAtCreation {
             total_classes: total_classes,
             target: target);
 
+  static Subject fromJson(dynamic json) => Subject(
+      title: json['title'],
+      target: json["target"],
+      attended: json["attended"],
+      total_classes: json["total_classes"],
+      id: json["id"]);
+
+  dynamic toJson() => {
+        'id': id,
+        'title': title,
+        'attended': attended,
+        'total_classes': total_classes,
+        'target': target
+      };
+
   final int id;
 }

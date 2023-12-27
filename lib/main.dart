@@ -4,13 +4,26 @@ import 'package:attendance_tracker/reducers/app_state_reducer.dart';
 import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux_persist/redux_persist.dart';
+import 'package:redux_persist_flutter/redux_persist_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final persistor = Persistor<AppState>(
+    storage: FlutterStorage(location: FlutterSaveLocation.sharedPreferences),
+    serializer: JsonSerializer<AppState>(AppState.fromJson),
+  );
+
+  // Load initial state
+  final initialState = await persistor.load();
+  final store = Store<AppState>(
+    appReducer,
+    initialState: initialState ?? AppState(),
+    middleware: [persistor.createMiddleware()],
+  );
+
   runApp(MyApp(
-    store: Store<AppState>(
-      appReducer,
-      initialState: AppState.loading(),
-    ),
+    store: store
   ));
 }
 
