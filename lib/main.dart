@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             fontFamily: "Montserrat",
           ),
+          initialRoute: MyHomePage.routeName,
           routes: {
             MyHomePage.routeName: (context) => const MyHomePage(),
             SubjectCalendarScreen.routeName: (context) => const SubjectCalendarScreen(),
