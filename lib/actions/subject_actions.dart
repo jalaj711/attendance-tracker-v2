@@ -1,7 +1,7 @@
 import 'package:attendance_tracker/models/subject_type.dart';
 
 class AddSubjectAction {
-  final Subject subject;
+  final SubjectAtCreation subject;
 
   AddSubjectAction(this.subject);
 

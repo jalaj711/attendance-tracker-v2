@@ -38,5 +38,13 @@ class Subject extends SubjectAtCreation {
         'target': target
       };
 
+  static Subject fromSubjectAtCreation(SubjectAtCreation subject, int id) =>
+      Subject(
+          title: subject.title,
+          target: subject.target,
+          attended: subject.attended,
+          total_classes: subject.total_classes,
+          id: id);
+
   final int id;
 }

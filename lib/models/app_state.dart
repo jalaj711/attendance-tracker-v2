@@ -29,6 +29,6 @@ class AppState {
 
   @override
   String toString() {
-    return 'AppState{isLoading: $isLoading, subjects: $subjects';
+    return 'AppState{isLoading: $isLoading, subjects: $subjects}';
   }
 }

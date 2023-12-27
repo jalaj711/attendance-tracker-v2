@@ -8,8 +8,10 @@ final subjectsReducer = combineReducers<List<Subject>>([
   TypedReducer<List<Subject>, MarkAttendanceAction>(_markAtendance),
 ]);
 
+int i = 0;
+
 List<Subject> _addSubject(List<Subject> subjects, AddSubjectAction action) {
-  return List.from(subjects)..add(action.subject);
+  return List.from(subjects)..add(Subject.fromSubjectAtCreation(action.subject, i++));
 }
 
 List<Subject> _editSubject(List<Subject> subjects, EditSubjectAction action) {

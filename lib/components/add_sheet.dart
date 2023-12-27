@@ -33,7 +33,7 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
     super.dispose();
   }
 
-  VoidCallback createSubject(Function(Subject) creator) {
+  VoidCallback createSubject(Function(SubjectAtCreation) creator) {
     return () {
       int attended = 0;
       int total = 0;
@@ -67,12 +67,11 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
         return;
       }
       Navigator.pop(context);
-      creator(Subject(
+      creator(SubjectAtCreation(
           title: name,
           target: targetAttendanceValue.round(),
           attended: attended,
-          total_classes: total,
-          id: 1));
+          total_classes: total));
     };
   }
 
@@ -144,24 +143,22 @@ class _AddSubjectSheetState extends State<AddSubjectSheet> {
                 const SizedBox(
                   height: 12,
                 ),
-                StoreConnector<AppState, dynamic Function(Subject)>(
-                  builder: (cont, callback) {
-                    return FilledButton(
-                      onPressed: createSubject(callback),
-                      child: const Padding(
-                        padding: EdgeInsets.only(
-                          top: 8,
-                          bottom: 8,
-                        ),
-                        child: Text("Save"),
+                StoreConnector<AppState, dynamic Function(SubjectAtCreation)>(
+                    builder: (cont, callback) {
+                  return FilledButton(
+                    onPressed: createSubject(callback),
+                    child: const Padding(
+                      padding: EdgeInsets.only(
+                        top: 8,
+                        bottom: 8,
                       ),
-                    );
-                  }, 
-                  converter: (store) {
-                    return (Subject subject) =>
+                      child: Text("Save"),
+                    ),
+                  );
+                }, converter: (store) {
+                  return (SubjectAtCreation subject) =>
                       store.dispatch(AddSubjectAction(subject));
-                  }
-                )
+                })
               ],
             )));
   }
