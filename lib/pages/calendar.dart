@@ -1,5 +1,7 @@
 import 'package:attendance_tracker/components/add_subject_fab.dart';
+import 'package:attendance_tracker/components/attendance_card.dart';
 import 'package:attendance_tracker/components/bottom_app_bar.dart';
+import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_date/dart_date.dart';
@@ -126,7 +128,8 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                               .toList()))
                       .toList()
                 ],
-              )
+              ),
+              AttendanceCard(attendance: Attendance(id: 1, subject_id: 1, present: true, timestamp: DateTime.now()))
             ],
           ),
         ),

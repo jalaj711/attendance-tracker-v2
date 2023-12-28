@@ -1,3 +1,4 @@
+import 'package:attendance_tracker/components/attendance_edit_sheet.dart';
 import 'package:attendance_tracker/components/delete_confirm.dart';
 import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
@@ -28,7 +29,7 @@ class _AttendanceCardState extends State<AttendanceCard> {
                   children: [
                     Text(
                       widget.attendance.timestamp
-                          .format('dd MMM, HH:mm')
+                          .format('dd MMM yyyy')
                           .toUpperCase(),
                       style: Theme.of(context)
                           .textTheme
@@ -41,7 +42,15 @@ class _AttendanceCardState extends State<AttendanceCard> {
                           height: 30,
                           width: 30,
                           child: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext cont) {
+                                      return EditAttendanceSheet(
+                                        attendance: widget.attendance,
+                                      );
+                                    });
+                              },
                               color: Colors.grey,
                               icon: const Icon(
                                 Icons.edit_outlined,
@@ -58,7 +67,7 @@ class _AttendanceCardState extends State<AttendanceCard> {
                                     builder: (BuildContext context) =>
                                         DeleteConfirmDialog(
                                           message:
-                                              "Are you sure you want to delete the attendance ${widget.attendance..timestamp.format('dd MMM, HH:mm')}?",
+                                              "Are you sure you want to delete the attendance ${widget.attendance.timestamp.format('dd MMM, HH:mm')}?",
                                           onDelete: () {},
                                         ));
                               },
@@ -80,7 +89,8 @@ class _AttendanceCardState extends State<AttendanceCard> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.merge(const TextStyle(color: Colors.white54))),
+                                ?.merge(
+                                    const TextStyle(color: Colors.white54))),
                         converter: (store) {
                           var subject = "SUBJ NOT FOUND";
                           for (var i = 0;
