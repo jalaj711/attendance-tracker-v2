@@ -6,6 +6,19 @@ import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_date/dart_date.dart';
 
+class CalendarEntry {
+  DateTime timestamp;
+  int status;
+  bool isSet;
+
+  CalendarEntry({required this.timestamp, this.status = 0, this.isSet = false});
+
+  @override
+  String toString() {
+    return "CalendarEntry{timestamp=$timestamp, status=$status, isSet=$isSet}";
+  }
+}
+
 class SubjectCalendarScreen extends StatefulWidget {
   static const routeName = '/calendar';
 
@@ -31,12 +44,88 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
     var finalDate = DateTime(_year, _month).endOfMonth.endOfWeek;
     var numDays = finalDate.differenceInDays(initialDate);
 
-    var calendar =
-        List<List<DateTime>>.generate((numDays / 7).round(), (index) => []);
+    var serverData = [
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(14)),
+      Attendance(
+          id: 1,
+          present: false,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(12)),
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(12)),
+      Attendance(
+          id: 1,
+          present: false,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(10)),
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(8)),
+      Attendance(
+          id: 1,
+          present: false,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(6)),
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(4)),
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(4)),
+      Attendance(
+          id: 1,
+          present: true,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(2)),
+      Attendance(
+          id: 1,
+          present: false,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(1)),
+      Attendance(
+          id: 1,
+          present: false,
+          subject_id: 1,
+          timestamp: DateTime.now().subDays(1)),
+    ];
 
-    for (var i = 0; i < numDays; i++) {
-      calendar[(i / 7).floor()].add(initialDate.addDays(i));
-    }
+    var calendar = List<List<CalendarEntry>>.generate(
+        (numDays / 7).round(),
+        (week) => List.generate(
+            7,
+            (day) =>
+                CalendarEntry(timestamp: initialDate.addDays(week * 7 + day))));
+
+    var present = 0;
+    var absent = 0;
+    serverData.forEach((elem) {
+      var diff = elem.timestamp.differenceInDays(initialDate);
+      if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
+        calendar[(diff / 7).floor()][diff % 7].isSet = true;
+      }
+
+      if (elem.present) {
+        present++;
+        calendar[(diff / 7).floor()][diff % 7].status++;
+      } else {
+        absent++;
+        calendar[(diff / 7).floor()][diff % 7].status--;
+        print("absent on ${calendar[(diff / 7).floor()][diff % 7]}");
+      }
+    });
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -115,21 +204,32 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                   ...calendar
                       .map((e) => TableRow(
                           children: e
-                              .map((date) => TextButton(
-                                  onPressed:
-                                      date.month == _month ? () {} : null,
-                                  child: Text(
-                                    date.format('dd'),
-                                    style: TextStyle(
-                                        color: date.month == _month
-                                            ? Colors.white60
-                                            : Colors.white24),
-                                  )))
+                              .map((date) => Container(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Badge(
+                                      smallSize: date.isSet ? 8 : 0,
+                                      backgroundColor: Color(date.status > 0 ? 0xaa66ff66 : (date.status == 0 ? 0xaaffff66 : 0xaaff6666)),
+                                      child: TextButton(
+                                          onPressed: date.timestamp.month == _month
+                                              ? () {}
+                                              : null,
+                                          child: Text(
+                                            date.timestamp.format('dd'),
+                                            style: TextStyle(
+                                                color: date.timestamp.month == _month
+                                                    ? Colors.white60
+                                                    : Colors.white24),
+                                          )))))
                               .toList()))
                       .toList()
                 ],
               ),
-              AttendanceCard(attendance: Attendance(id: 1, subject_id: 1, present: true, timestamp: DateTime.now()))
+              AttendanceCard(
+                  attendance: Attendance(
+                      id: 1,
+                      subject_id: 1,
+                      present: true,
+                      timestamp: DateTime.now()))
             ],
           ),
         ),
