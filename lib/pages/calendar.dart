@@ -33,6 +33,7 @@ class SubjectCalendarScreen extends StatefulWidget {
 class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
   int _month = DateTime.now().month;
   int _year = DateTime.now().year;
+  DateTime? _selectedDate;
 
   @override
   Widget build(BuildContext context) {
@@ -207,8 +208,27 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                                   padding: const EdgeInsets.all(4),
                                   child: TextButton(
                                       onPressed: date.timestamp.month == _month
-                                          ? () {}
+                                          ? () {
+                                              setState(() {
+                                                if (_selectedDate ==
+                                                    date.timestamp) {
+                                                  _selectedDate = null;
+                                                } else {
+                                                  _selectedDate =
+                                                      date.timestamp;
+                                                }
+                                              });
+                                            }
                                           : null,
+                                      style: ButtonStyle(
+                                          backgroundColor: _selectedDate ==
+                                                  date.timestamp
+                                              ? MaterialStatePropertyAll(
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withAlpha(30))
+                                              : null),
                                       child: Text(
                                         date.timestamp.format('dd'),
                                         style: TextStyle(

@@ -24,11 +24,6 @@ class BottomBar extends StatelessWidget {
             },
           ),
           IconButton(
-            tooltip: 'Attendance History',
-            icon: const Icon(Icons.history_rounded),
-            onPressed: () {},
-          ),
-          IconButton(
             tooltip: 'Calendar',
             icon: const Icon(Icons.calendar_month_rounded),
             onPressed: () {
