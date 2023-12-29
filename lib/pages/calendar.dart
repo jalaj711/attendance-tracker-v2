@@ -1,10 +1,12 @@
 import 'package:attendance_tracker/components/add_subject_fab.dart';
 import 'package:attendance_tracker/components/attendance_card.dart';
 import 'package:attendance_tracker/components/bottom_app_bar.dart';
+import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_date/dart_date.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class CalendarEntry {
   DateTime timestamp;
@@ -139,13 +141,27 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                 'Calendar',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
-              Text(
-                'Subject: ${args.subjectID}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
-              ),
+              StoreConnector<AppState, String>(
+                  builder: (cont, subject) => Text(
+                        subject,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
+                      ),
+                  converter: (store) {
+                    if (args.subjectID == null) {
+                      return "";
+                    }
+                    var subject = "Subject: ";
+                    for (var i = 0; i < store.state.subjects.length; i++) {
+                      if (args.subjectID == store.state.subjects[i].id) {
+                        subject += store.state.subjects[i].title;
+                        break;
+                      }
+                    }
+                    return subject;
+                  }),
               const SizedBox(
                 height: 12,
               ),
@@ -221,14 +237,14 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                                             }
                                           : null,
                                       style: ButtonStyle(
-                                          backgroundColor: _selectedDate ==
-                                                  date.timestamp
-                                              ? MaterialStatePropertyAll(
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary
-                                                      .withAlpha(30))
-                                              : null),
+                                          backgroundColor:
+                                              _selectedDate == date.timestamp
+                                                  ? MaterialStatePropertyAll(
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .primary
+                                                          .withAlpha(30))
+                                                  : null),
                                       child: Text(
                                         date.timestamp.format('dd'),
                                         style: TextStyle(

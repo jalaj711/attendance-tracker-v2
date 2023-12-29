@@ -2,7 +2,9 @@ import 'package:attendance_tracker/actions/subject_actions.dart';
 import 'package:attendance_tracker/components/delete_confirm.dart';
 import 'package:attendance_tracker/components/edit_sheet.dart';
 import 'package:attendance_tracker/models/app_state.dart';
+import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
+import 'package:attendance_tracker/pages/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
@@ -16,7 +18,15 @@ class SubjectCard extends StatefulWidget {
 class _SubjectCardState extends State<SubjectCard> {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+                context,
+                SubjectCalendarScreen.routeName,
+                arguments: CalendarScreenArguments(widget.subject.id),
+              );
+      },
+      child: Card(
         color: Theme.of(context).cardColor,
         elevation: 2,
         margin: const EdgeInsets.only(top: 12, bottom: 8),
@@ -250,6 +260,6 @@ class _SubjectCardState extends State<SubjectCard> {
                   ],
                 )
               ],
-            )));
+            ))),);
   }
 }
