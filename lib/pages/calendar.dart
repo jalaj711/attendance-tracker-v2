@@ -111,7 +111,7 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
 
     var present = 0;
     var absent = 0;
-    serverData.forEach((elem) {
+    for (var elem in serverData) {
       var diff = elem.timestamp.differenceInDays(initialDate);
       if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
         calendar[(diff / 7).floor()][diff % 7].isSet = true;
@@ -123,9 +123,8 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
       } else {
         absent++;
         calendar[(diff / 7).floor()][diff % 7].status--;
-        print("absent on ${calendar[(diff / 7).floor()][diff % 7]}");
       }
-    });
+    }
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -206,30 +205,72 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                           children: e
                               .map((date) => Container(
                                   padding: const EdgeInsets.all(4),
-                                  child: Badge(
-                                      smallSize: date.isSet ? 8 : 0,
-                                      backgroundColor: Color(date.status > 0 ? 0xaa66ff66 : (date.status == 0 ? 0xaaffff66 : 0xaaff6666)),
-                                      child: TextButton(
-                                          onPressed: date.timestamp.month == _month
-                                              ? () {}
-                                              : null,
-                                          child: Text(
-                                            date.timestamp.format('dd'),
-                                            style: TextStyle(
-                                                color: date.timestamp.month == _month
-                                                    ? Colors.white60
-                                                    : Colors.white24),
-                                          )))))
+                                  child: TextButton(
+                                      onPressed: date.timestamp.month == _month
+                                          ? () {}
+                                          : null,
+                                      child: Text(
+                                        date.timestamp.format('dd'),
+                                        style: TextStyle(
+                                            color:
+                                                date.timestamp.month == _month
+                                                    ? (date.isSet
+                                                        ? (Color(date.status > 0
+                                                            ? 0xaa66ff66
+                                                            : (date.status == 0
+                                                                ? 0xaaffff66
+                                                                : 0xaaff6666)))
+                                                        : Colors.white60)
+                                                    : Colors.white24,
+                                            fontWeight: date.isSet
+                                                ? FontWeight.w600
+                                                : FontWeight.normal),
+                                      ))))
                               .toList()))
                       .toList()
                 ],
               ),
-              AttendanceCard(
-                  attendance: Attendance(
-                      id: 1,
-                      subject_id: 1,
-                      present: true,
-                      timestamp: DateTime.now()))
+              const SizedBox(
+                height: 16,
+              ),
+              Card(
+                elevation: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        "PRESENT: $present",
+                        style: const TextStyle(
+                            color: Color(0xaa66ff66),
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "ABSENT: $absent",
+                        style: const TextStyle(
+                            color: Color(0xaaff6666),
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "PERC: ${(present / (present + absent) * 100).round()}%",
+                        style: const TextStyle(
+                            color: Colors.white60, fontWeight: FontWeight.w600),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              const Text(
+                "MARKED ATTENDANCE",
+                style: TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+              ...serverData
+                  .map((attendance) => AttendanceCard(attendance: attendance))
+                  .toList(),
             ],
           ),
         ),
