@@ -1,8 +1,5 @@
-import 'package:attendance_tracker/actions/subject_actions.dart';
-import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 
 class EditSubjectSheet extends StatefulWidget {
   const EditSubjectSheet({super.key, required this.subject});
@@ -100,19 +97,16 @@ class _EditSubjectSheetState extends State<EditSubjectSheet> {
                 const SizedBox(
                   height: 12,
                 ),
-                StoreConnector<AppState, dynamic Function(Subject)>(
-                    builder: (cont, callback) {
-                  return FilledButton(
-                    onPressed: saveSubject(callback),
-                    child: const Padding(
-                      padding: EdgeInsets.only(
-                        top: 8,
-                        bottom: 8,
-                      ),
-                      child: Text("Save"),
+                FilledButton(
+                  onPressed: () {},
+                  child: const Padding(
+                    padding: EdgeInsets.only(
+                      top: 8,
+                      bottom: 8,
                     ),
-                  );
-                }, converter: (store) => (Subject subject) => store.dispatch(EditSubjectAction(subject)))
+                    child: Text("Save"),
+                  ),
+                )
               ],
             )));
   }

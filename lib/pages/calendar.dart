@@ -52,57 +52,57 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(14)),
+          timestamp: initialDate.addDays(14)),
       Attendance(
           id: 1,
           present: false,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(12)),
+          timestamp: initialDate.addDays(12)),
       Attendance(
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(12)),
+          timestamp: initialDate.addDays(12)),
       Attendance(
           id: 1,
           present: false,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(10)),
+          timestamp: initialDate.addDays(10)),
       Attendance(
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(8)),
+          timestamp: initialDate.addDays(8)),
       Attendance(
           id: 1,
           present: false,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(6)),
+          timestamp: initialDate.addDays(6)),
       Attendance(
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(4)),
+          timestamp: initialDate.addDays(4)),
       Attendance(
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(4)),
+          timestamp: initialDate.addDays(4)),
       Attendance(
           id: 1,
           present: true,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(2)),
+          timestamp: initialDate.addDays(2)),
       Attendance(
           id: 1,
           present: false,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(1)),
+          timestamp: initialDate.addDays(1)),
       Attendance(
           id: 1,
           present: false,
           subject_id: 1,
-          timestamp: DateTime.now().subDays(1)),
+          timestamp: initialDate.addDays(1)),
     ];
 
     var calendar = List<List<CalendarEntry>>.generate(

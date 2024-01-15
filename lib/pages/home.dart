@@ -1,18 +1,25 @@
 import 'package:attendance_tracker/components/add_subject_fab.dart';
 import 'package:attendance_tracker/components/bottom_app_bar.dart';
 import 'package:attendance_tracker/components/subject_card.dart';
-import 'package:attendance_tracker/models/app_state.dart';
-import 'package:attendance_tracker/models/subject_type.dart';
+import 'package:attendance_tracker/database/database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyHomePage extends StatelessWidget {
+final allSubjects = StreamProvider((ref) {
+  final database = ref.watch(AppDatabase.provider);
+
+  return database.getAllSubjects();
+});
+
+class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key});
 
   static const routeName = '/';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subjects = ref.watch(allSubjects);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -32,18 +39,27 @@ class MyHomePage extends StatelessWidget {
                     .bodyMedium
                     ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
               ),
-              StoreConnector<AppState, List<Subject>>(
-                  builder: (context, subjects) {
-                    return Container(
-                        margin: const EdgeInsets.only(top: 48),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: subjects
+              Container(
+                  margin: const EdgeInsets.only(top: 48),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: subjects.when(
+                          data: (entries) {
+                            return entries
                                 .map((subject) => SubjectCard(subject: subject))
-                                .toList()));
-                  },
-                  converter: (store) => store.state.subjects)
+                                .toList();
+                          },
+                          error: (e, s) {
+                            debugPrintStack(label: e.toString(), stackTrace: s);
+                            return [const Text('An error has occured')];
+                          },
+                          loading: () => [
+                                const Align(
+                                  alignment: Alignment.center,
+                                  child: CircularProgressIndicator(),
+                                )
+                              ])))
             ],
           ),
         ),

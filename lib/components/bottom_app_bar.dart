@@ -30,7 +30,7 @@ class BottomBar extends StatelessWidget {
               Navigator.pushNamed(
                 context,
                 SubjectCalendarScreen.routeName,
-                arguments: CalendarScreenArguments(2),
+                arguments: CalendarScreenArguments(null),
               );
             },
           ),
