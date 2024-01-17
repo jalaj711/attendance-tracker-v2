@@ -1,5 +1,4 @@
 import 'package:attendance_tracker/models/subject_type.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../database/database.dart';

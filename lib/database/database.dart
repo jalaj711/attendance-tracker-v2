@@ -79,6 +79,21 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+
+  Future<List<models.Attendance>> getAllAttendancesBySubject(int subject) {
+    final query = (select(attendance)..where((tbl) => tbl.subject.equals(subject))).get();
+
+    return query.then((results) {
+      return List.generate(
+          results.length,
+          (index) => models.Attendance(
+              id: results[index].id,
+              subject_id: results[index].subject,
+              present: results[index].present,
+              timestamp: results[index].timestamp));
+    });
+  }
+
   Future<Subject> getSubjectById(int id) {
     final query = (select(subjectEntries)..where((tbl) => tbl.id.equals(id)));
     return query.getSingle().then((result) {

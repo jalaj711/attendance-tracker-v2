@@ -17,11 +17,16 @@ class _AttendanceCardState extends ConsumerState<AttendanceCard> {
   String _subject = "Loading...";
 
   @override
-  void initState () {
-    ref.read(AppDatabase.provider).getSubjectById(widget.attendance.subject_id).then((value) {
-      setState(() {
-        _subject = value.title;
-      });
+  void initState() {
+    ref
+        .read(AppDatabase.provider)
+        .getSubjectById(widget.attendance.subject_id)
+        .then((value) {
+      if (mounted) {
+        setState(() {
+          _subject = value.title;
+        });
+      }
     });
     super.initState();
   }

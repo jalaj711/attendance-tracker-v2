@@ -1,14 +1,12 @@
-import 'dart:html';
-
 import 'package:attendance_tracker/components/add_subject_fab.dart';
 import 'package:attendance_tracker/components/attendance_card.dart';
 import 'package:attendance_tracker/components/bottom_app_bar.dart';
 import 'package:attendance_tracker/database/database.dart';
-import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_date/dart_date.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarEntry {
@@ -40,7 +38,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
   int _month = DateTime.now().month;
   int _year = DateTime.now().year;
   List<List<CalendarEntry>> calendar = [];
-  late Future<List<Attendance>> _serverData;
+  List<Attendance> _serverData = [];
   int present = 0;
   int absent = 0;
   DateTime? _selectedDate;
@@ -50,14 +48,15 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
     var initialDate = DateTime(_year, _month).startOfWeek;
     var finalDate = DateTime(_year, _month).endOfMonth.endOfWeek;
     var numDays = finalDate.differenceInDays(initialDate);
+
     calendar = List<List<CalendarEntry>>.generate(
         (numDays / 7).round(),
         (week) => List.generate(
             7,
             (day) =>
                 CalendarEntry(timestamp: initialDate.addDays(week * 7 + day))));
-    _serverData =
-        ref.read(AppDatabase.provider).getAllAttendances().then((value) {
+
+    ref.read(AppDatabase.provider).getAllAttendances().then((value) {
       setState(() {
         for (var elem in value) {
           var diff = elem.timestamp.differenceInDays(initialDate);
@@ -73,9 +72,43 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
             calendar[(diff / 7).floor()][diff % 7].status--;
           }
         }
+        _serverData = value;
       });
-      return value;
     });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final subjId = ((ModalRoute.of(context)!.settings.arguments
+                  as CalendarScreenArguments?) ??
+              CalendarScreenArguments(null))
+          .subjectID;
+
+      if (subjId != null) {
+        ref
+            .read(AppDatabase.provider)
+            .getAllAttendancesBySubject(subjId)
+            .then((value) {
+          setState(() {
+            present = 0;
+            absent = 0;
+            for (var elem in value) {
+              var diff = elem.timestamp.differenceInDays(initialDate);
+              if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
+                calendar[(diff / 7).floor()][diff % 7].isSet = true;
+              }
+
+              if (elem.present) {
+                present++;
+                calendar[(diff / 7).floor()][diff % 7].status++;
+              } else {
+                absent++;
+                calendar[(diff / 7).floor()][diff % 7].status--;
+              }
+            }
+          });
+          _serverData = value;
+        });
+      }
+    });
+
     super.initState();
   }
 
@@ -242,24 +275,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                 "MARKED ATTENDANCE",
                 style: TextStyle(color: Colors.white38, fontSize: 12),
               ),
-              FutureBuilder<List<Attendance>>(
-                future: _serverData,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                        children: snapshot.data!
-                            .map((attendance) =>
-                                AttendanceCard(attendance: attendance))
-                            .toList());
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-                  return const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [CircularProgressIndicator()],
-                  );
-                },
-              )
+              ..._serverData.map((e) => AttendanceCard(attendance: e))
             ],
           ),
         ),
