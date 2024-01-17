@@ -1,17 +1,31 @@
 import 'package:attendance_tracker/components/attendance_edit_sheet.dart';
 import 'package:attendance_tracker/components/delete_confirm.dart';
+import 'package:attendance_tracker/database/database.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:dart_date/dart_date.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AttendanceCard extends StatefulWidget {
+class AttendanceCard extends ConsumerStatefulWidget {
   const AttendanceCard({super.key, required this.attendance});
   final Attendance attendance;
   @override
-  State<AttendanceCard> createState() => _AttendanceCardState();
+  ConsumerState<AttendanceCard> createState() => _AttendanceCardState();
 }
 
-class _AttendanceCardState extends State<AttendanceCard> {
+class _AttendanceCardState extends ConsumerState<AttendanceCard> {
+  String _subject = "Loading...";
+
+  @override
+  void initState () {
+    ref.read(AppDatabase.provider).getSubjectById(widget.attendance.subject_id).then((value) {
+      setState(() {
+        _subject = value.title;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -82,7 +96,7 @@ class _AttendanceCardState extends State<AttendanceCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text("ABCD".toUpperCase(),
+                    Text(_subject.toUpperCase(),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium

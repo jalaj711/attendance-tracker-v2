@@ -79,6 +79,18 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<Subject> getSubjectById(int id) {
+    final query = (select(subjectEntries)..where((tbl) => tbl.id.equals(id)));
+    return query.getSingle().then((result) {
+      return Subject(
+          title: result.title,
+          target: result.target,
+          attended: result.attended,
+          total_classes: result.totalClasses,
+          id: id);
+    });
+  }
+
   Future<void> createNewSubject(SubjectAtCreation subject) {
     return transaction(() async {
       await into(subjectEntries)
