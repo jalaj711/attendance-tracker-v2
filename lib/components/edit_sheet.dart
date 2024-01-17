@@ -1,14 +1,17 @@
+import 'package:attendance_tracker/database/database.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EditSubjectSheet extends StatefulWidget {
+class EditSubjectSheet extends ConsumerStatefulWidget {
   const EditSubjectSheet({super.key, required this.subject});
   final Subject subject;
   @override
-  State<EditSubjectSheet> createState() => _EditSubjectSheetState();
+  ConsumerState<EditSubjectSheet> createState() => _EditSubjectSheetState();
 }
 
-class _EditSubjectSheetState extends State<EditSubjectSheet> {
+class _EditSubjectSheetState extends ConsumerState<EditSubjectSheet> {
   double targetAttendanceValue = 75;
   late TextEditingController _subjectNameController;
 
@@ -25,33 +28,45 @@ class _EditSubjectSheetState extends State<EditSubjectSheet> {
     super.dispose();
   }
 
-  VoidCallback saveSubject(Function(Subject) creator) {
-    return () {
-      String name = _subjectNameController.text;
+  void saveSubject() {
+    String name = _subjectNameController.text;
 
-      if (name == "") {
-        final SnackBar snackBar = SnackBar(
-          content: const Text("Subject name cannot be empty"),
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Okay',
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        return;
-      }
-      Navigator.pop(context);
-      var subject = Subject(
-          title: name,
-          target: targetAttendanceValue.round(),
-          attended: widget.subject.attended,
-          total_classes: widget.subject.total_classes,
-          id: widget.subject.id);
-      creator(subject);
-    };
+    if (name == "") {
+      final SnackBar snackBar = SnackBar(
+        content: const Text("Subject name cannot be empty"),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Okay',
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+    Navigator.pop(context);
+    ref
+        .read(AppDatabase.provider)
+        .updateSubject(
+            widget.subject.id,
+            SubjectEntriesCompanion(
+                title: drift.Value(name),
+                target: drift.Value(targetAttendanceValue.round())))
+        .onError((error, stackTrace) {
+      final SnackBar snackBar = SnackBar(
+        content: Text("Error while updating: ${error.toString()}"),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Okay',
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return -1;
+    });
   }
 
   @override
@@ -98,7 +113,7 @@ class _EditSubjectSheetState extends State<EditSubjectSheet> {
                   height: 12,
                 ),
                 FilledButton(
-                  onPressed: () {},
+                  onPressed: saveSubject,
                   child: const Padding(
                     padding: EdgeInsets.only(
                       top: 8,

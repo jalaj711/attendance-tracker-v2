@@ -161,4 +161,9 @@ class AppDatabase extends _$AppDatabase {
       });
     });
   }
+
+  Future<int> updateSubject(int id, SubjectEntriesCompanion newSubject) {
+    return (update(subjectEntries)..where((tbl) => tbl.id.equals(id)))
+        .write(newSubject);
+  }
 }
