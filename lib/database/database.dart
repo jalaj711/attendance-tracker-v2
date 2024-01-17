@@ -79,9 +79,9 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
-
   Future<List<models.Attendance>> getAllAttendancesBySubject(int subject) {
-    final query = (select(attendance)..where((tbl) => tbl.subject.equals(subject))).get();
+    final query =
+        (select(attendance)..where((tbl) => tbl.subject.equals(subject))).get();
 
     return query.then((results) {
       return List.generate(
@@ -103,6 +103,23 @@ class AppDatabase extends _$AppDatabase {
           attended: result.attended,
           total_classes: result.totalClasses,
           id: id);
+    });
+  }
+
+  Future<int> markAttendance(int subject, bool present) {
+    final query =
+        (select(subjectEntries)..where((tbl) => tbl.id.equals(subject)));
+    return query.getSingle().then((subj) {
+      return (update(subjectEntries)..where((tbl) => tbl.id.equals(subject)))
+          .write(SubjectEntriesCompanion(
+              attended: Value(subj.attended + (present ? 1 : 0)),
+              totalClasses: Value(subj.totalClasses + 1)));
+    }).then((_) {
+      return into(attendance).insert(AttendanceCompanion.insert(
+          present: present,
+          subject: subject,
+          timestamp: DateTime.now(),
+          description: const Value("")));
     });
   }
 

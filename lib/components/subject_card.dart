@@ -1,22 +1,44 @@
 import 'package:attendance_tracker/components/delete_confirm.dart';
 import 'package:attendance_tracker/components/edit_sheet.dart';
+import 'package:attendance_tracker/database/database.dart';
 import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:attendance_tracker/pages/calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SubjectCard extends StatefulWidget {
+class SubjectCard extends ConsumerStatefulWidget {
   const SubjectCard({super.key, required this.subject});
   final Subject subject;
   @override
-  State<SubjectCard> createState() => _SubjectCardState();
+  ConsumerState<SubjectCard> createState() => _SubjectCardState();
 }
 
-class _SubjectCardState extends State<SubjectCard> {
+class _SubjectCardState extends ConsumerState<SubjectCard> {
+  void markAttendance(bool present) {
+    ref
+        .read(AppDatabase.provider)
+        .markAttendance(widget.subject.id, present)
+        .then((value) {})
+        .onError((error, stackTrace) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error: ${error.toString()}"),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Okay',
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        print(widget.subject.id);
         Navigator.pushNamed(
           context,
           SubjectCalendarScreen.routeName,
@@ -192,7 +214,7 @@ class _SubjectCardState extends State<SubjectCard> {
                                 height: 30,
                                 width: 30,
                                 child: IconButton.filledTonal(
-                                    onPressed: () {},
+                                    onPressed: () => markAttendance(false),
                                     icon: const Icon(
                                       Icons.remove,
                                       size: 14,
@@ -226,7 +248,7 @@ class _SubjectCardState extends State<SubjectCard> {
                                 height: 30,
                                 width: 30,
                                 child: IconButton.filled(
-                                    onPressed: () {},
+                                    onPressed: () => markAttendance(true),
                                     icon: const Icon(
                                       Icons.add,
                                       size: 14,
