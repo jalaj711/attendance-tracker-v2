@@ -1,3 +1,4 @@
+import 'package:attendance_tracker/models/subject_type.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,11 +67,11 @@ class _AddSubjectSheetState extends ConsumerState<AddSubjectSheet> {
     }
     Navigator.pop(context);
     final database = ref.read(AppDatabase.provider);
-    database.subjectEntries.insertOne(SubjectEntriesCompanion.insert(
+    database.createNewSubject(SubjectAtCreation(
         title: name,
         target: targetAttendanceValue.round(),
         attended: attended,
-        totalClasses: total));
+        total_classes: total));
   }
 
   @override

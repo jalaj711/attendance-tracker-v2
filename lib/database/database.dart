@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/models/subject_type.dart';
+import 'package:attendance_tracker/models/attendance_type.dart' as models;
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -62,5 +63,46 @@ class AppDatabase extends _$AppDatabase {
           total_classes: row.totalClasses,
           id: row.id);
     }).watch();
+  }
+  Stream<List<models.Attendance>> getAllAttendances() {
+    final query = select(attendance);
+
+    return query.map((row) {
+      return models.Attendance(id: row.id, subject_id: row.subject, present: row.present, timestamp: row.timestamp);
+    }).watch();
+  }
+
+  Future<void> createNewSubject(SubjectAtCreation subject) {
+    return transaction(() async {
+      subjectEntries
+          .insertOne(SubjectEntriesCompanion.insert(
+              title: subject.title,
+              target: subject.target.round(),
+              attended: subject.attended,
+              totalClasses: subject.total_classes))
+          .then((id) {
+        if (subject.attended > 0) {
+          for (var i = 0; i < subject.attended; i++) {
+            attendance.insertOne(AttendanceCompanion.insert(
+                present: true,
+                subject: id,
+                timestamp: DateTime.now(),
+                description:
+                    const Value("[System Generated] Initial Attendance")));
+          }
+        }
+
+        if (subject.target > subject.attended) {
+          for (var i = 0; i < subject.target - subject.attended; i++) {
+            attendance.insertOne(AttendanceCompanion.insert(
+                present: false,
+                subject: id,
+                timestamp: DateTime.now(),
+                description:
+                    const Value("[System Generated] Initial Attendance")));
+          }
+        }
+      });
+    });
   }
 }
