@@ -64,26 +64,34 @@ class AppDatabase extends _$AppDatabase {
           id: row.id);
     }).watch();
   }
-  Stream<List<models.Attendance>> getAllAttendances() {
-    final query = select(attendance);
 
-    return query.map((row) {
-      return models.Attendance(id: row.id, subject_id: row.subject, present: row.present, timestamp: row.timestamp);
-    }).watch();
+  Future<List<models.Attendance>> getAllAttendances() {
+    final query = select(attendance).get();
+
+    return query.then((results) {
+      return List.generate(
+          results.length,
+          (index) => models.Attendance(
+              id: results[index].id,
+              subject_id: results[index].subject,
+              present: results[index].present,
+              timestamp: results[index].timestamp));
+    });
   }
 
   Future<void> createNewSubject(SubjectAtCreation subject) {
     return transaction(() async {
-      subjectEntries
-          .insertOne(SubjectEntriesCompanion.insert(
+      await into(subjectEntries)
+          .insert(SubjectEntriesCompanion.insert(
               title: subject.title,
               target: subject.target.round(),
               attended: subject.attended,
               totalClasses: subject.total_classes))
-          .then((id) {
+          .then((id) async {
+        List<AttendanceCompanion> queries = [];
         if (subject.attended > 0) {
           for (var i = 0; i < subject.attended; i++) {
-            attendance.insertOne(AttendanceCompanion.insert(
+            queries.add(AttendanceCompanion.insert(
                 present: true,
                 subject: id,
                 timestamp: DateTime.now(),
@@ -92,9 +100,9 @@ class AppDatabase extends _$AppDatabase {
           }
         }
 
-        if (subject.target > subject.attended) {
-          for (var i = 0; i < subject.target - subject.attended; i++) {
-            attendance.insertOne(AttendanceCompanion.insert(
+        if (subject.total_classes > subject.attended) {
+          for (var i = 0; i < subject.total_classes - subject.attended; i++) {
+            queries.add(AttendanceCompanion.insert(
                 present: false,
                 subject: id,
                 timestamp: DateTime.now(),
@@ -102,6 +110,10 @@ class AppDatabase extends _$AppDatabase {
                     const Value("[System Generated] Initial Attendance")));
           }
         }
+
+        await batch((batch) {
+          batch.insertAll(attendance, queries);
+        });
       });
     });
   }

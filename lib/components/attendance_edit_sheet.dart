@@ -1,8 +1,6 @@
-import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:dart_date/dart_date.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 
 class EditAttendanceSheet extends StatefulWidget {
   const EditAttendanceSheet({super.key, required this.attendance});
@@ -47,27 +45,12 @@ class _EditAttendanceSheetState extends State<EditAttendanceSheet> {
                     Text(
                       "Subject Name:",
                       style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    StoreConnector<AppState, String>(
-                        builder: (cont, subject) => Text(subject.toUpperCase(),
+                    ),Text("ABCD",
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
                                 ?.merge(
-                                    const TextStyle(color: Colors.white54))),
-                        converter: (store) {
-                          var subject = "SUBJ NOT FOUND";
-                          for (var i = 0;
-                              i < store.state.subjects.length;
-                              i++) {
-                            if (widget.attendance.subject_id ==
-                                store.state.subjects[i].id) {
-                              subject = store.state.subjects[i].title;
-                              break;
-                            }
-                          }
-                          return subject;
-                        })
+                                    const TextStyle(color: Colors.white54)))
                   ],
                 ),
                 const SizedBox(

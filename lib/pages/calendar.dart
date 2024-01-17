@@ -1,12 +1,15 @@
+import 'dart:html';
+
 import 'package:attendance_tracker/components/add_subject_fab.dart';
 import 'package:attendance_tracker/components/attendance_card.dart';
 import 'package:attendance_tracker/components/bottom_app_bar.dart';
+import 'package:attendance_tracker/database/database.dart';
 import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:attendance_tracker/models/calendar_screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_date/dart_date.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarEntry {
   DateTime timestamp;
@@ -21,7 +24,7 @@ class CalendarEntry {
   }
 }
 
-class SubjectCalendarScreen extends StatefulWidget {
+class SubjectCalendarScreen extends ConsumerStatefulWidget {
   static const routeName = '/calendar';
 
   const SubjectCalendarScreen({
@@ -29,139 +32,74 @@ class SubjectCalendarScreen extends StatefulWidget {
   });
 
   @override
-  State<SubjectCalendarScreen> createState() => _SubjectCalendarScreenState();
+  ConsumerState<SubjectCalendarScreen> createState() =>
+      _SubjectCalendarScreenState();
 }
 
-class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
+class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
   int _month = DateTime.now().month;
   int _year = DateTime.now().year;
+  List<List<CalendarEntry>> calendar = [];
+  late Future<List<Attendance>> _serverData;
+  int present = 0;
+  int absent = 0;
   DateTime? _selectedDate;
 
   @override
-  Widget build(BuildContext context) {
-    var args = (ModalRoute.of(context)!.settings.arguments
-            as CalendarScreenArguments?) ??
-        CalendarScreenArguments(null);
-
+  void initState() {
     var initialDate = DateTime(_year, _month).startOfWeek;
     var finalDate = DateTime(_year, _month).endOfMonth.endOfWeek;
     var numDays = finalDate.differenceInDays(initialDate);
-
-    var serverData = [
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(14)),
-      Attendance(
-          id: 1,
-          present: false,
-          subject_id: 1,
-          timestamp: initialDate.addDays(12)),
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(12)),
-      Attendance(
-          id: 1,
-          present: false,
-          subject_id: 1,
-          timestamp: initialDate.addDays(10)),
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(8)),
-      Attendance(
-          id: 1,
-          present: false,
-          subject_id: 1,
-          timestamp: initialDate.addDays(6)),
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(4)),
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(4)),
-      Attendance(
-          id: 1,
-          present: true,
-          subject_id: 1,
-          timestamp: initialDate.addDays(2)),
-      Attendance(
-          id: 1,
-          present: false,
-          subject_id: 1,
-          timestamp: initialDate.addDays(1)),
-      Attendance(
-          id: 1,
-          present: false,
-          subject_id: 1,
-          timestamp: initialDate.addDays(1)),
-    ];
-
-    var calendar = List<List<CalendarEntry>>.generate(
+    calendar = List<List<CalendarEntry>>.generate(
         (numDays / 7).round(),
         (week) => List.generate(
             7,
             (day) =>
                 CalendarEntry(timestamp: initialDate.addDays(week * 7 + day))));
+    _serverData =
+        ref.read(AppDatabase.provider).getAllAttendances().then((value) {
+      setState(() {
+        for (var elem in value) {
+          var diff = elem.timestamp.differenceInDays(initialDate);
+          if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
+            calendar[(diff / 7).floor()][diff % 7].isSet = true;
+          }
 
-    var present = 0;
-    var absent = 0;
-    for (var elem in serverData) {
-      var diff = elem.timestamp.differenceInDays(initialDate);
-      if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
-        calendar[(diff / 7).floor()][diff % 7].isSet = true;
-      }
+          if (elem.present) {
+            present++;
+            calendar[(diff / 7).floor()][diff % 7].status++;
+          } else {
+            absent++;
+            calendar[(diff / 7).floor()][diff % 7].status--;
+          }
+        }
+      });
+      return value;
+    });
+    super.initState();
+  }
 
-      if (elem.present) {
-        present++;
-        calendar[(diff / 7).floor()][diff % 7].status++;
-      } else {
-        absent++;
-        calendar[(diff / 7).floor()][diff % 7].status--;
-      }
-    }
-
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 48, 12, 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
                 'Calendar',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
-              StoreConnector<AppState, String>(
-                  builder: (cont, subject) => Text(
-                        subject,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
-                      ),
-                  converter: (store) {
-                    if (args.subjectID == null) {
-                      return "";
-                    }
-                    var subject = "Subject: ";
-                    for (var i = 0; i < store.state.subjects.length; i++) {
-                      if (args.subjectID == store.state.subjects[i].id) {
-                        subject += store.state.subjects[i].title;
-                        break;
-                      }
-                    }
-                    return subject;
-                  }),
+              Text(
+                "subject",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.merge(const TextStyle(color: Color(0xffaaaaaa))),
+              ),
               const SizedBox(
                 height: 12,
               ),
@@ -289,7 +227,7 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        "PERC: ${(present / (present + absent) * 100).round()}%",
+                        "PERC: ${(present + absent) == 0 ? 0 : (present / (present + absent) * 100).round()}%",
                         style: const TextStyle(
                             color: Colors.white60, fontWeight: FontWeight.w600),
                       )
@@ -304,9 +242,24 @@ class _SubjectCalendarScreenState extends State<SubjectCalendarScreen> {
                 "MARKED ATTENDANCE",
                 style: TextStyle(color: Colors.white38, fontSize: 12),
               ),
-              ...serverData
-                  .map((attendance) => AttendanceCard(attendance: attendance))
-                  .toList(),
+              FutureBuilder<List<Attendance>>(
+                future: _serverData,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                        children: snapshot.data!
+                            .map((attendance) =>
+                                AttendanceCard(attendance: attendance))
+                            .toList());
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [CircularProgressIndicator()],
+                  );
+                },
+              )
             ],
           ),
         ),

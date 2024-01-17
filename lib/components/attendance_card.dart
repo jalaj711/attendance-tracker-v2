@@ -1,10 +1,8 @@
 import 'package:attendance_tracker/components/attendance_edit_sheet.dart';
 import 'package:attendance_tracker/components/delete_confirm.dart';
-import 'package:attendance_tracker/models/app_state.dart';
 import 'package:attendance_tracker/models/attendance_type.dart';
 import 'package:dart_date/dart_date.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 
 class AttendanceCard extends StatefulWidget {
   const AttendanceCard({super.key, required this.attendance});
@@ -84,26 +82,11 @@ class _AttendanceCardState extends State<AttendanceCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    StoreConnector<AppState, String>(
-                        builder: (cont, subject) => Text(subject.toUpperCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.merge(
-                                    const TextStyle(color: Colors.white54))),
-                        converter: (store) {
-                          var subject = "SUBJ NOT FOUND";
-                          for (var i = 0;
-                              i < store.state.subjects.length;
-                              i++) {
-                            if (widget.attendance.subject_id ==
-                                store.state.subjects[i].id) {
-                              subject = store.state.subjects[i].title;
-                              break;
-                            }
-                          }
-                          return subject;
-                        }),
+                    Text("ABCD".toUpperCase(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.merge(const TextStyle(color: Colors.white54))),
                     Text(
                       widget.attendance.present ? "PRESENT" : "ABSENT",
                       style: Theme.of(context).textTheme.bodyLarge?.merge(
