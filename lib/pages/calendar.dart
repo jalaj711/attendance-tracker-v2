@@ -43,72 +43,80 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
   int absent = 0;
   DateTime? _selectedDate;
 
-  @override
-  void initState() {
+  void reloadAppAttendances() {
     var initialDate = DateTime(_year, _month).startOfWeek;
     var finalDate = DateTime(_year, _month).endOfMonth.endOfWeek;
     var numDays = finalDate.differenceInDays(initialDate);
 
-    calendar = List<List<CalendarEntry>>.generate(
-        (numDays / 7).round(),
-        (week) => List.generate(
-            7,
-            (day) =>
-                CalendarEntry(timestamp: initialDate.addDays(week * 7 + day))));
+    setState(() {
+      calendar = List<List<CalendarEntry>>.generate(
+          (numDays / 7).round(),
+          (week) => List.generate(
+              7,
+              (day) => CalendarEntry(
+                  timestamp: initialDate.addDays(week * 7 + day))));
+    });
 
-    ref.read(AppDatabase.provider).getAllAttendances().then((value) {
-      setState(() {
-        for (var elem in value) {
-          var diff = elem.timestamp.differenceInDays(initialDate);
-          if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
-            calendar[(diff / 7).floor()][diff % 7].isSet = true;
-          }
+    final subjId = ((ModalRoute.of(context)!.settings.arguments
+                as CalendarScreenArguments?) ??
+            CalendarScreenArguments(null))
+        .subjectID;
 
-          if (elem.present) {
-            present++;
-            calendar[(diff / 7).floor()][diff % 7].status++;
-          } else {
-            absent++;
-            calendar[(diff / 7).floor()][diff % 7].status--;
+    if (subjId != null) {
+      ref
+          .read(AppDatabase.provider)
+          .getAllAttendancesBySubject(subjId)
+          .then((value) {
+        setState(() {
+          present = 0;
+          absent = 0;
+          for (var elem in value) {
+            var diff = elem.timestamp.differenceInDays(initialDate);
+            if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
+              calendar[(diff / 7).floor()][diff % 7].isSet = true;
+            }
+
+            if (elem.present) {
+              present++;
+              calendar[(diff / 7).floor()][diff % 7].status++;
+            } else {
+              absent++;
+              calendar[(diff / 7).floor()][diff % 7].status--;
+            }
           }
-        }
+        });
         _serverData = value;
       });
-    });
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      final subjId = ((ModalRoute.of(context)!.settings.arguments
-                  as CalendarScreenArguments?) ??
-              CalendarScreenArguments(null))
-          .subjectID;
-
-      if (subjId != null) {
-        ref
-            .read(AppDatabase.provider)
-            .getAllAttendancesBySubject(subjId)
-            .then((value) {
-          setState(() {
-            present = 0;
-            absent = 0;
-            for (var elem in value) {
-              var diff = elem.timestamp.differenceInDays(initialDate);
-              if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
-                calendar[(diff / 7).floor()][diff % 7].isSet = true;
-              }
-
-              if (elem.present) {
-                present++;
-                calendar[(diff / 7).floor()][diff % 7].status++;
-              } else {
-                absent++;
-                calendar[(diff / 7).floor()][diff % 7].status--;
-              }
+    } else {
+      ref.read(AppDatabase.provider).getAttendancesOnDates(_year, _month, null).then((value) {
+        setState(() {
+          present = 0;
+          absent = 0;
+          for (var elem in value) {
+            var diff = elem.timestamp.differenceInDays(initialDate);
+            if (!calendar[(diff / 7).floor()][diff % 7].isSet) {
+              calendar[(diff / 7).floor()][diff % 7].isSet = true;
             }
-          });
+
+            if (elem.present) {
+              present++;
+              calendar[(diff / 7).floor()][diff % 7].status++;
+            } else {
+              absent++;
+              calendar[(diff / 7).floor()][diff % 7].status--;
+            }
+          }
           _serverData = value;
         });
-      }
-    });
+      });
+    }
+  }
 
+  @override
+  void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      reloadAppAttendances();
+    });
     super.initState();
   }
 
@@ -155,20 +163,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                                 _month -= 1;
                               }
 
-                              var initialDate =
-                                  DateTime(_year, _month).startOfWeek;
-                              var finalDate =
-                                  DateTime(_year, _month).endOfMonth.endOfWeek;
-                              var numDays =
-                                  finalDate.differenceInDays(initialDate);
-
-                              calendar = List<List<CalendarEntry>>.generate(
-                                  (numDays / 7).round(),
-                                  (week) => List.generate(
-                                      7,
-                                      (day) => CalendarEntry(
-                                          timestamp: initialDate
-                                              .addDays(week * 7 + day))));
+                              reloadAppAttendances();
                             });
                           },
                           icon: const Icon(Icons.chevron_left_rounded)),
@@ -182,20 +177,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                                 _month += 1;
                               }
 
-                              var initialDate =
-                                  DateTime(_year, _month).startOfWeek;
-                              var finalDate =
-                                  DateTime(_year, _month).endOfMonth.endOfWeek;
-                              var numDays =
-                                  finalDate.differenceInDays(initialDate);
-
-                              calendar = List<List<CalendarEntry>>.generate(
-                                  (numDays / 7).round(),
-                                  (week) => List.generate(
-                                      7,
-                                      (day) => CalendarEntry(
-                                          timestamp: initialDate
-                                              .addDays(week * 7 + day))));
+                              reloadAppAttendances();
                             });
                           },
                           icon: const Icon(Icons.chevron_right_rounded))

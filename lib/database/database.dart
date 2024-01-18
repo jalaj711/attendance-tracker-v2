@@ -106,6 +106,29 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<List<models.Attendance>> getAttendancesOnDates(
+      int year, int month, int? date) {
+    final query = (select(attendance)
+      ..where((tbl) {
+        final sameYear = tbl.timestamp.year.equals(year);
+        final sameMonth = tbl.timestamp.month.equals(month);
+        if (date != null) {
+          final sameDay = tbl.timestamp.day.equals(date);
+          return sameDay & sameMonth & sameYear;
+        }
+        return sameMonth & sameYear;
+      }));
+    return query.get().then((results) {
+      return List.generate(
+          results.length,
+          (index) => models.Attendance(
+              id: results[index].id,
+              subject_id: results[index].subject,
+              present: results[index].present,
+              timestamp: results[index].timestamp));
+    });
+  }
+
   Future<int> markAttendance(int subject, bool present) {
     final query =
         (select(subjectEntries)..where((tbl) => tbl.id.equals(subject)));
