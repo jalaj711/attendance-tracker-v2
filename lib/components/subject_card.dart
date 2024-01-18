@@ -38,7 +38,6 @@ class _SubjectCardState extends ConsumerState<SubjectCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print(widget.subject.id);
         Navigator.pushNamed(
           context,
           SubjectCalendarScreen.routeName,
@@ -92,7 +91,26 @@ class _SubjectCardState extends ConsumerState<SubjectCard> {
                                         DeleteConfirmDialog(
                                       message:
                                           "Are you sure you want to delete the subject ${widget.subject.title}?",
-                                      onDelete: () {},
+                                      onDelete: () {
+                                        ref
+                                            .read(AppDatabase.provider)
+                                            .deleteSubject(widget.subject.id)
+                                            .onError((error, stackTrace) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                "Error: ${error.toString()}"),
+                                            behavior: SnackBarBehavior.floating,
+                                            action: SnackBarAction(
+                                              label: 'Okay',
+                                              onPressed: () {
+                                                ScaffoldMessenger.of(context)
+                                                    .hideCurrentSnackBar();
+                                              },
+                                            ),
+                                          ));
+                                        });
+                                      },
                                     ),
                                   );
                                 },

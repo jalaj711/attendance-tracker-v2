@@ -166,4 +166,12 @@ class AppDatabase extends _$AppDatabase {
     return (update(subjectEntries)..where((tbl) => tbl.id.equals(id)))
         .write(newSubject);
   }
+
+  Future<int?> deleteSubject(int id) {
+    return (delete(attendance)..where((tbl) => tbl.subject.equals(id)))
+        .go()
+        .then((value) {
+      return (delete(subjectEntries)..where((tbl) => tbl.id.equals(id))).go();
+    });
+  }
 }
