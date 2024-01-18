@@ -154,6 +154,21 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                               } else {
                                 _month -= 1;
                               }
+
+                              var initialDate =
+                                  DateTime(_year, _month).startOfWeek;
+                              var finalDate =
+                                  DateTime(_year, _month).endOfMonth.endOfWeek;
+                              var numDays =
+                                  finalDate.differenceInDays(initialDate);
+
+                              calendar = List<List<CalendarEntry>>.generate(
+                                  (numDays / 7).round(),
+                                  (week) => List.generate(
+                                      7,
+                                      (day) => CalendarEntry(
+                                          timestamp: initialDate
+                                              .addDays(week * 7 + day))));
                             });
                           },
                           icon: const Icon(Icons.chevron_left_rounded)),
@@ -166,6 +181,21 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                               } else {
                                 _month += 1;
                               }
+
+                              var initialDate =
+                                  DateTime(_year, _month).startOfWeek;
+                              var finalDate =
+                                  DateTime(_year, _month).endOfMonth.endOfWeek;
+                              var numDays =
+                                  finalDate.differenceInDays(initialDate);
+
+                              calendar = List<List<CalendarEntry>>.generate(
+                                  (numDays / 7).round(),
+                                  (week) => List.generate(
+                                      7,
+                                      (day) => CalendarEntry(
+                                          timestamp: initialDate
+                                              .addDays(week * 7 + day))));
                             });
                           },
                           icon: const Icon(Icons.chevron_right_rounded))
