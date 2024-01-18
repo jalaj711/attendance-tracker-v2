@@ -41,7 +41,6 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
   List<Attendance> _serverData = [];
   int present = 0;
   int absent = 0;
-  DateTime? _selectedDate;
 
   void reloadAppAttendances() {
     var initialDate = DateTime(_year, _month).startOfWeek;
@@ -65,7 +64,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
     if (subjId != null) {
       ref
           .read(AppDatabase.provider)
-          .getAllAttendancesBySubject(subjId)
+          .getAttendancesOnDatesWithSubject(subjId, _year, _month, null)
           .then((value) {
         setState(() {
           present = 0;
@@ -208,26 +207,8 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                                   child: TextButton(
                                       onPressed: date.timestamp.month == _month
                                           ? () {
-                                              setState(() {
-                                                if (_selectedDate ==
-                                                    date.timestamp) {
-                                                  _selectedDate = null;
-                                                } else {
-                                                  _selectedDate =
-                                                      date.timestamp;
-                                                }
-                                              });
                                             }
                                           : null,
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              _selectedDate == date.timestamp
-                                                  ? MaterialStatePropertyAll(
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .primary
-                                                          .withAlpha(30))
-                                                  : null),
                                       child: Text(
                                         date.timestamp.format('dd'),
                                         style: TextStyle(
