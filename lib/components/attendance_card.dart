@@ -40,6 +40,7 @@ class _AttendanceCardState extends ConsumerState<AttendanceCard> {
         child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,7 +85,7 @@ class _AttendanceCardState extends ConsumerState<AttendanceCard> {
                                     builder: (BuildContext context) =>
                                         DeleteConfirmDialog(
                                           message:
-                                              "Are you sure you want to delete the attendance ${widget.attendance.timestamp.format('dd MMM, HH:mm')}?",
+                                              "Are you sure you want to delete the attendance ${widget.attendance.timestamp.format('dd MMM')}?",
                                           onDelete: () {
                                             ref
                                                 .read(AppDatabase.provider)
@@ -121,7 +122,12 @@ class _AttendanceCardState extends ConsumerState<AttendanceCard> {
                               fontWeight: FontWeight.w600)),
                     )
                   ],
-                )
+                ),
+                Text(widget.attendance.description,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.merge(const TextStyle(color: Colors.white38))),
               ],
             )));
   }

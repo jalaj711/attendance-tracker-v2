@@ -17,6 +17,7 @@ class _EditAttendanceSheetState extends ConsumerState<EditAttendanceSheet> {
   bool _isPresent = false;
   DateTime _timestamp = DateTime.now();
   late TextEditingController _descriptionController;
+  String _subject = "Loading...";
 
   @override
   void initState() {
@@ -25,6 +26,16 @@ class _EditAttendanceSheetState extends ConsumerState<EditAttendanceSheet> {
     _timestamp = widget.attendance.timestamp;
     _descriptionController =
         TextEditingController(text: widget.attendance.description);
+    ref
+        .read(AppDatabase.provider)
+        .getSubjectById(widget.attendance.subject_id)
+        .then((value) {
+      if (mounted) {
+        setState(() {
+          _subject = value.title;
+        });
+      }
+    });
   }
 
   @override
@@ -69,7 +80,7 @@ class _EditAttendanceSheetState extends ConsumerState<EditAttendanceSheet> {
                       "Subject Name:",
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    Text("ABCD",
+                    Text(_subject,
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium

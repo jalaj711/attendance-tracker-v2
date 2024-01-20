@@ -41,6 +41,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
   List<Attendance> _serverData = [];
   int present = 0;
   int absent = 0;
+  String _subject = "";
 
   void reloadAppAttendances() {
     var initialDate = DateTime(_year, _month).startOfWeek;
@@ -62,6 +63,14 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
         .subjectID;
 
     if (subjId != null) {
+      ref.read(AppDatabase.provider).getSubjectById(subjId).then((value) {
+        if (mounted) {
+          setState(() {
+            _subject = value.title;
+          });
+        }
+      });
+
       ref
           .watch(AppDatabase.provider)
           .getAttendancesOnDatesWithSubject(subjId, _year, _month, null)
@@ -139,7 +148,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               Text(
-                "subject",
+                _subject,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
