@@ -201,8 +201,10 @@ class _SubjectCardState extends ConsumerState<SubjectCard> {
                                       width: 120,
                                       margin: const EdgeInsets.only(right: 8),
                                       child: LinearProgressIndicator(
-                                        value: widget.subject.attended /
-                                            widget.subject.total_classes,
+                                        value: widget.subject.total_classes == 0
+                                            ? 0
+                                            : widget.subject.attended /
+                                                widget.subject.total_classes,
                                       )),
                                   Text(
                                     "${widget.subject.attended}",
@@ -246,13 +248,13 @@ class _SubjectCardState extends ConsumerState<SubjectCard> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "${(widget.subject.attended / widget.subject.total_classes * 100).floor()}",
+                                      "${((widget.subject.total_classes == 0 ? 0 : widget.subject.attended / widget.subject.total_classes) * 100).floor()}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall,
                                     ),
                                     Text(
-                                      ".${(((widget.subject.attended / widget.subject.total_classes * 100) % 1) * 100).round()}%",
+                                      ".${((((widget.subject.total_classes == 0 ? 0 : widget.subject.attended / widget.subject.total_classes) * 100) % 1) * 100).round()}%",
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
