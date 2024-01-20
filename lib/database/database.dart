@@ -75,7 +75,8 @@ class AppDatabase extends _$AppDatabase {
               id: results[index].id,
               subject_id: results[index].subject,
               present: results[index].present,
-              timestamp: results[index].timestamp));
+              timestamp: results[index].timestamp,
+              description: results[index].description ?? ""));
     });
   }
 
@@ -90,7 +91,8 @@ class AppDatabase extends _$AppDatabase {
               id: results[index].id,
               subject_id: results[index].subject,
               present: results[index].present,
-              timestamp: results[index].timestamp));
+              timestamp: results[index].timestamp,
+              description: results[index].description ?? ""));
     });
   }
 
@@ -123,7 +125,8 @@ class AppDatabase extends _$AppDatabase {
             id: e.id,
             present: e.present,
             subject_id: e.subject,
-            timestamp: e.timestamp))
+            timestamp: e.timestamp,
+            description: e.description ?? ""))
         .watch();
   }
 
@@ -145,7 +148,8 @@ class AppDatabase extends _$AppDatabase {
             id: e.id,
             present: e.present,
             subject_id: e.subject,
-            timestamp: e.timestamp))
+            timestamp: e.timestamp,
+            description: e.description ?? ""))
         .watch();
   }
 
@@ -234,6 +238,28 @@ class AppDatabase extends _$AppDatabase {
                     att.present ? subject.attended - 1 : subject.attended)))
             .then((_) {
           return (delete(attendance)..where((tbl) => tbl.id.equals(id))).go();
+        });
+      });
+    });
+  }
+
+  Future<int?> updateAttendance(int id, AttendanceCompanion companion) {
+    return (select(attendance)..where((tbl) => tbl.id.equals(id)))
+        .getSingle()
+        .then((att) {
+      return (select(subjectEntries)
+            ..where((tbl) => tbl.id.equals(att.subject)))
+          .getSingle()
+          .then((subject) {
+        return (update(subjectEntries)
+              ..where((tbl) => tbl.id.equals(subject.id)))
+            .write(SubjectEntriesCompanion(
+                attended: Value(
+                    (att.present ? subject.attended - 1 : subject.attended) +
+                        (companion.present.present ? 1 : 0))))
+            .then((_) {
+          return (update(attendance)..where((tbl) => tbl.id.equals(id)))
+              .write(companion);
         });
       });
     });

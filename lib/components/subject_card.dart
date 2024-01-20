@@ -109,6 +109,7 @@ class _SubjectCardState extends ConsumerState<SubjectCard> {
                                               },
                                             ),
                                           ));
+                                          return null;
                                         });
                                       },
                                     ),
