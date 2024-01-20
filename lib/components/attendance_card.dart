@@ -85,7 +85,12 @@ class _AttendanceCardState extends ConsumerState<AttendanceCard> {
                                         DeleteConfirmDialog(
                                           message:
                                               "Are you sure you want to delete the attendance ${widget.attendance.timestamp.format('dd MMM, HH:mm')}?",
-                                          onDelete: () {},
+                                          onDelete: () {
+                                            ref
+                                                .read(AppDatabase.provider)
+                                                .deleteAttendance(
+                                                    widget.attendance.id);
+                                          },
                                         ));
                               },
                               color: Colors.grey,

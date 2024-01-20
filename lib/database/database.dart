@@ -106,7 +106,7 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
-  Future<List<models.Attendance>> getAttendancesOnDates(
+  Stream<List<models.Attendance>> getAttendancesOnDates(
       int year, int month, int? date) {
     final query = (select(attendance)
       ..where((tbl) {
@@ -118,19 +118,16 @@ class AppDatabase extends _$AppDatabase {
         }
         return sameMonth & sameYear;
       }));
-    return query.get().then((results) {
-      return List.generate(
-          results.length,
-          (index) => models.Attendance(
-              id: results[index].id,
-              subject_id: results[index].subject,
-              present: results[index].present,
-              timestamp: results[index].timestamp));
-    });
+    return query
+        .map((e) => models.Attendance(
+            id: e.id,
+            present: e.present,
+            subject_id: e.subject,
+            timestamp: e.timestamp))
+        .watch();
   }
 
-
-  Future<List<models.Attendance>> getAttendancesOnDatesWithSubject(
+  Stream<List<models.Attendance>> getAttendancesOnDatesWithSubject(
       int subject, int year, int month, int? date) {
     final query = (select(attendance)
       ..where((tbl) {
@@ -143,15 +140,13 @@ class AppDatabase extends _$AppDatabase {
         }
         return sameMonth & sameYear & sameSubj;
       }));
-    return query.get().then((results) {
-      return List.generate(
-          results.length,
-          (index) => models.Attendance(
-              id: results[index].id,
-              subject_id: results[index].subject,
-              present: results[index].present,
-              timestamp: results[index].timestamp));
-    });
+    return query
+        .map((e) => models.Attendance(
+            id: e.id,
+            present: e.present,
+            subject_id: e.subject,
+            timestamp: e.timestamp))
+        .watch();
   }
 
   Future<int> markAttendance(int subject, bool present) {
@@ -220,6 +215,27 @@ class AppDatabase extends _$AppDatabase {
         .go()
         .then((value) {
       return (delete(subjectEntries)..where((tbl) => tbl.id.equals(id))).go();
+    });
+  }
+
+  Future<int?> deleteAttendance(int id) {
+    return (select(attendance)..where((tbl) => tbl.id.equals(id)))
+        .getSingle()
+        .then((att) {
+      return (select(subjectEntries)
+            ..where((tbl) => tbl.id.equals(att.subject)))
+          .getSingle()
+          .then((subject) {
+        return (update(subjectEntries)
+              ..where((tbl) => tbl.id.equals(subject.id)))
+            .write(SubjectEntriesCompanion(
+                totalClasses: Value(subject.totalClasses - 1),
+                attended: Value(
+                    att.present ? subject.attended - 1 : subject.attended)))
+            .then((_) {
+          return (delete(attendance)..where((tbl) => tbl.id.equals(id))).go();
+        });
+      });
     });
   }
 }

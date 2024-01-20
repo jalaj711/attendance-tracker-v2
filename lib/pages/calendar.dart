@@ -63,9 +63,10 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
 
     if (subjId != null) {
       ref
-          .read(AppDatabase.provider)
+          .watch(AppDatabase.provider)
           .getAttendancesOnDatesWithSubject(subjId, _year, _month, null)
-          .then((value) {
+          .asBroadcastStream()
+          .listen((value) {
         setState(() {
           present = 0;
           absent = 0;
@@ -83,11 +84,15 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
               calendar[(diff / 7).floor()][diff % 7].status--;
             }
           }
+          _serverData = value;
         });
-        _serverData = value;
       });
     } else {
-      ref.read(AppDatabase.provider).getAttendancesOnDates(_year, _month, null).then((value) {
+      ref
+          .watch(AppDatabase.provider)
+          .getAttendancesOnDates(_year, _month, null)
+          .asBroadcastStream()
+          .listen((value) {
         setState(() {
           present = 0;
           absent = 0;
@@ -206,8 +211,7 @@ class _SubjectCalendarScreenState extends ConsumerState<SubjectCalendarScreen> {
                                   padding: const EdgeInsets.all(4),
                                   child: TextButton(
                                       onPressed: date.timestamp.month == _month
-                                          ? () {
-                                            }
+                                          ? () {}
                                           : null,
                                       child: Text(
                                         date.timestamp.format('dd'),
